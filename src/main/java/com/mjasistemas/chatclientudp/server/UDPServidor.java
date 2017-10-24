@@ -20,9 +20,9 @@ public class UDPServidor implements Runnable {
         switch (tipo) {
             case 1://entrar na sala
                 //verificar situação do solicitante ex: se está banido
-                
-                
-                
+                String apelido = tmp.substring(6, 18);
+                System.out.println("apelido: " + apelido.trim());
+
                 break;
         }
     }
