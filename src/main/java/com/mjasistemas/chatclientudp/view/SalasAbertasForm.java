@@ -117,9 +117,10 @@ public class SalasAbertasForm extends javax.swing.JInternalFrame {
         }
         UDPCliente udpc = new UDPCliente("127.0.0.1", 9876);
         String msg = "1";
-        msg += String.format("%05d", getSalaSelecionada().getId());
+        msg += String.format("%05d", getSalaSelecionada().getId()); //numeros estranhos complete do lado esquedo com mais coisas
         msg += String.format("%12s", pessoa.getNickName());
         udpc.enviar(msg);
+        new ChatForm().setVisible(true);
     }//GEN-LAST:event_btnEntrarActionPerformed
 
 
