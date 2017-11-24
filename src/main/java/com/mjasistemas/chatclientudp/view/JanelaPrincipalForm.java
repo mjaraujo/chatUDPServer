@@ -5,6 +5,7 @@
  */
 package com.mjasistemas.chatclientudp.view;
 
+import com.mjasistemas.chatclientudp.comunicacao.Configuracoes;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import com.mjasistemas.chatclientudp.model.pessoa.TipoPessoaEnum;
 import com.mysql.jdbc.log.Log;
@@ -23,6 +24,8 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
         this.pessoa = pessoa;
         initComponents();
         habilitarOpcoes();
+        Configuracoes.setPorta(9876);
+        Configuracoes.setIP("127.0.0.1");
     }
 
     /**
@@ -41,6 +44,7 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
         mnuGerenciar = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
         cutMenuItem = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -80,6 +84,14 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
         cutMenuItem.setMnemonic('t');
         cutMenuItem.setText("Fontes & cores");
         editMenu.add(cutMenuItem);
+
+        jMenuItem3.setText("Configurar");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        editMenu.add(jMenuItem3);
 
         menuBar.add(editMenu);
 
@@ -161,6 +173,10 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
    private void habilitarOpcoes() {
         mnuGerenciar.setEnabled(pessoa.getTipo()==TipoPessoaEnum.ADMINISTRADOR);
        // mnuSalasAbertas.setEnabled(usuario.getTipo()==TipoPessoaEnum.ADMINISTRADOR);
@@ -177,6 +193,7 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem mnuGerenciar;
     private javax.swing.JMenu mnuSair;

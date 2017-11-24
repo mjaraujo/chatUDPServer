@@ -5,6 +5,8 @@
  */
 package com.mjasistemas.chatclientudp.server;
 
+import com.mjasistemas.chatclientudp.controller.UsuarioController;
+import com.mjasistemas.chatclientudp.model.RetornoEntradaEnum;
 import java.net.*;
 import java.io.*;
 
@@ -12,19 +14,25 @@ public class UDPServidor implements Runnable {
 
     private DatagramSocket aSoquete = null;
 
-    private void tratarRequisicao(DatagramPacket requisicao) {
+    private RetornoEntradaEnum tratarRequisicao(DatagramPacket requisicao) {
         int tamResp = requisicao.getLength();
         String tmp = new String(requisicao.getData(), 0, tamResp);
 
         int tipo = Integer.parseInt(tmp.toString().substring(0, 1));
         switch (tipo) {
             case 1://entrar na sala
-                //verificar situação do solicitante ex: se está banido
-                String apelido = tmp.substring(6, 18);
-                System.out.println("apelido: " + apelido.trim());
+                //verificar situação do usuário ex: se está banido
+                String apelido = tmp.substring(6, 18).trim(); //apelido
+                int sala = Integer.parseInt(tmp.substring(1, 6).trim()); // sala
 
-                break;
+                boolean acesso = new UsuarioController().permitirAcessoSala(apelido, sala);
+                if (acesso) {
+                    return RetornoEntradaEnum.OK;
+                } else {
+                    return RetornoEntradaEnum.BANIDO;
+                }
         }
+        return RetornoEntradaEnum.NAO_CADASTRADO;
     }
 
     public UDPServidor() {
@@ -39,14 +47,26 @@ public class UDPServidor implements Runnable {
                 DatagramPacket requisicao = new DatagramPacket(buffer, buffer.length);
                 aSoquete.receive(requisicao);
 
-                tratarRequisicao(requisicao);
+                RetornoEntradaEnum respostaRequisicao = tratarRequisicao(requisicao);
+                int tamResp = requisicao.getLength();
+                String req = new String(requisicao.getData(), 0, tamResp);
+                String tmp;
+                tmp = "1";
+                tmp += String.format("%12s", req.substring(6, 18));
+                switch (respostaRequisicao) {
+                    case OK:
+                        tmp += 0;
+                        break;
+                    case BANIDO:
+                        tmp += 1;
+                        break;
+                    case NAO_CADASTRADO:
+                        tmp += 2;
+                        break;
+                }
 
                 String usuario = System.getProperty("user.name");
-                int tamResp = requisicao.getLength();
-                String tmp = new String(requisicao.getData(), 0, tamResp) + usuario;
 
-                System.out.println(tmp);
-                System.out.println(usuario);
                 buffer = tmp.getBytes();
                 DatagramPacket resposta = new DatagramPacket(buffer, tmp.length(), requisicao.getAddress(), requisicao.getPort());
                 aSoquete.send(resposta);

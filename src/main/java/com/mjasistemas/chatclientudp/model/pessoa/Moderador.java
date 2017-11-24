@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package com.mjasistemas.chatclientudp.model.pessoa;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -21,7 +20,7 @@ import javax.persistence.Enumerated;
 public class Moderador extends Pessoa {
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo", insertable = false, updatable = false)
+    @Column(name = "tipo", insertable = false, updatable = false, nullable = false, length = 20)
     private TipoPessoaEnum tipo;
 
     public Moderador() {
@@ -37,7 +36,9 @@ public class Moderador extends Pessoa {
     /**
      * @param tipo the tipo to set
      */
+    @Override
     public void setTipo(TipoPessoaEnum tipo) {
         this.tipo = tipo;
     }
 }
+

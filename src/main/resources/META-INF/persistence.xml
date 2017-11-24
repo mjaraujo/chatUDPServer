@@ -6,6 +6,7 @@
     <class>com.mjasistemas.chatclientudp.model.Sala</class>
     <class>com.mjasistemas.chatclientudp.model.Sessao</class>
     <class>com.mjasistemas.chatclientudp.model.pessoa.Pessoa</class>
+    <class>com.mjasistemas.chatclientudp.model.Banidos</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/chatUDP?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

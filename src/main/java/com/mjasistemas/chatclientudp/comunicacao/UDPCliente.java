@@ -40,20 +40,31 @@ public class UDPCliente implements Runnable {
             System.out.println("IO: " + e.getMessage());
         } finally {
             if (aSoquete != null) {
-                aSoquete.close();
+//                aSoquete.close();
             }
         }
     }
 
+    private void tratarResposta(String resp) {
+        resp.substring(0,1);
+    }
+    
     private void escutar() {
+
         byte[] buffer = new byte[255];
-        DatagramPacket resposta = new DatagramPacket(buffer, buffer.length);
-        try {
-            aSoquete.receive(resposta);
-        } catch (IOException ex) {
-            Logger.getLogger(UDPCliente.class.getName()).log(Level.SEVERE, null, ex);
+        while (true) {
+            DatagramPacket resposta = new DatagramPacket(buffer, buffer.length);
+            try {
+                aSoquete.receive(resposta);
+                String resp = new String(resposta.getData());
+                System.out.println("Resposta ouvida pelo client: " + resp);
+                tratarResposta(resp);
+                
+            } catch (IOException ex) {
+                Logger.getLogger(UDPCliente.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
-        System.out.println("Resposta: " + new String(resposta.getData()));
     }
 
     @Override
@@ -68,8 +79,6 @@ public class UDPCliente implements Runnable {
         return ip;
     }
 
-    
-
     /**
      * @return the porta
      */
@@ -77,5 +86,6 @@ public class UDPCliente implements Runnable {
         return servidorPorta;
     }
 
-   
+    
+
 }

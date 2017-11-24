@@ -5,8 +5,10 @@
  */
 package com.mjasistemas.chatclientudp.view;
 
+import com.mjasistemas.chatclientudp.comunicacao.Solicitacoes;
 import com.mjasistemas.chatclientudp.comunicacao.UDPCliente;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
+import com.mjasistemas.chatclientudp.model.RetornoEntradaEnum;
 import com.mjasistemas.chatclientudp.model.Sala;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class SalasAbertasForm extends javax.swing.JInternalFrame {
     private ObservableList<Sala> salas;
     private Sala salaSelecionada;
     private final Pessoa pessoa;
+
     /**
      * Creates new form SalasAbertasForm
      */
@@ -111,16 +114,13 @@ public class SalasAbertasForm extends javax.swing.JInternalFrame {
 
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
         // TODO add your handling code here:
-        if(getSalaSelecionada() == null){
-            JOptionPane.showMessageDialog(null,"Selecione a sala");
+        if (getSalaSelecionada() == null) {
+            JOptionPane.showMessageDialog(null, "Selecione a sala");
             return;
         }
-        UDPCliente udpc = new UDPCliente("127.0.0.1", 9876);
-        String msg = "1";
-        msg += String.format("%05d", getSalaSelecionada().getId()); //numeros estranhos complete do lado esquedo com mais coisas
-        msg += String.format("%12s", pessoa.getNickName());
-        udpc.enviar(msg);
-        new ChatForm().setVisible(true);
+        if (new Solicitacoes().solicitarEntrada(pessoa.getNickName(), salaSelecionada.getId()) == RetornoEntradaEnum.OK) {
+            new ChatForm().setVisible(true);
+        }
     }//GEN-LAST:event_btnEntrarActionPerformed
 
 
@@ -160,5 +160,4 @@ public class SalasAbertasForm extends javax.swing.JInternalFrame {
         this.salaSelecionada = salaSelecionada;
     }
 
-    
 }
