@@ -8,7 +8,7 @@ package com.mjasistemas.chatclientudp.view;
 import com.mjasistemas.chatclientudp.comunicacao.Solicitacoes;
 import com.mjasistemas.chatclientudp.comunicacao.UDPCliente;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
-import com.mjasistemas.chatclientudp.model.RetornoEntradaEnum;
+import com.mjasistemas.chatclientudp.model.RetornoEnum;
 import com.mjasistemas.chatclientudp.model.Sala;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import java.util.ArrayList;
@@ -114,13 +114,23 @@ public class SalasAbertasForm extends javax.swing.JInternalFrame {
 
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
         // TODO add your handling code here:
+
         if (getSalaSelecionada() == null) {
             JOptionPane.showMessageDialog(null, "Selecione a sala");
             return;
         }
-        if (new Solicitacoes().solicitarEntrada(pessoa.getNickName(), salaSelecionada.getId()) == RetornoEntradaEnum.OK) {
-            new ChatForm().setVisible(true);
-        }
+        RetornoEnum resSolicitarEntrada;
+        do {
+            resSolicitarEntrada = new Solicitacoes().solicitarEntrada(pessoa.getNickName(), salaSelecionada.getId());
+
+            if (resSolicitarEntrada == RetornoEnum.ENTRADA_OK) {
+                new ChatForm().setVisible(true);
+            } else if (resSolicitarEntrada == RetornoEnum.ENTRADA_BANIDO) {
+                JOptionPane.showMessageDialog(this, "Você está banido dessa sala");
+
+            }
+            
+        } while (resSolicitarEntrada == RetornoEnum.ERRO_SIZE);
     }//GEN-LAST:event_btnEntrarActionPerformed
 
 

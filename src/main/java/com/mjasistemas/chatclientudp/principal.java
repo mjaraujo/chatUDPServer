@@ -1,5 +1,6 @@
 package com.mjasistemas.chatclientudp;
 
+import com.mjasistemas.chatclientudp.comunicacao.UDPCliente;
 import com.mjasistemas.chatclientudp.server.UDPServidor;
 import com.mjasistemas.chatclientudp.view.LoginForm;
 
@@ -15,9 +16,9 @@ import com.mjasistemas.chatclientudp.view.LoginForm;
 public class principal {
 
     public static void main(String[] args) {
-        UDPServidor u = new UDPServidor();
-
+        UDPServidor u = new UDPServidor();       
         new LoginForm().setVisible(true);
         u.run();
+        
     }
 }

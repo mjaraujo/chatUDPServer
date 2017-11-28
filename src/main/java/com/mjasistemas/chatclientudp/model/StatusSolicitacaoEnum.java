@@ -9,15 +9,16 @@ package com.mjasistemas.chatclientudp.model;
  *
  * @author marcio
  */
-public enum RetornoEntradaEnum {
+public enum StatusSolicitacaoEnum {
 
-    OK("Entrada permitida"),
-    BANIDO("Usuário banido da sala"),
-    NAO_CADASTRADO("Usuário não cadastrado");
+    OCIOSO("Ocioso"),
+    PROCESSANDO("Processando"),
+    RESPONDIDA("Respondida"),
+    TIME_OUT("Time out");
 
     private final String descricao;
 
-    private RetornoEntradaEnum(String descricao) {
+    private StatusSolicitacaoEnum(String descricao) {
         this.descricao = descricao;
     }
 

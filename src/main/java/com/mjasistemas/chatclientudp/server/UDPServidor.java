@@ -6,7 +6,7 @@
 package com.mjasistemas.chatclientudp.server;
 
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
-import com.mjasistemas.chatclientudp.model.RetornoEntradaEnum;
+import com.mjasistemas.chatclientudp.model.RetornoEnum;
 import java.net.*;
 import java.io.*;
 
@@ -14,7 +14,7 @@ public class UDPServidor implements Runnable {
 
     private DatagramSocket aSoquete = null;
 
-    private RetornoEntradaEnum tratarRequisicao(DatagramPacket requisicao) {
+    private RetornoEnum tratarRequisicao(DatagramPacket requisicao) {
         int tamResp = requisicao.getLength();
         String tmp = new String(requisicao.getData(), 0, tamResp);
 
@@ -22,17 +22,20 @@ public class UDPServidor implements Runnable {
         switch (tipo) {
             case 1://entrar na sala
                 //verificar situação do usuário ex: se está banido
+                if (tamResp != 18) {
+                    return RetornoEnum.ERRO_SIZE;
+                }
                 String apelido = tmp.substring(6, 18).trim(); //apelido
                 int sala = Integer.parseInt(tmp.substring(1, 6).trim()); // sala
 
                 boolean acesso = new UsuarioController().permitirAcessoSala(apelido, sala);
                 if (acesso) {
-                    return RetornoEntradaEnum.OK;
+                    return RetornoEnum.ENTRADA_OK;
                 } else {
-                    return RetornoEntradaEnum.BANIDO;
+                    return RetornoEnum.ENTRADA_BANIDO;
                 }
         }
-        return RetornoEntradaEnum.NAO_CADASTRADO;
+        return RetornoEnum.ENTRADA_NAO_CADASTRADO;
     }
 
     public UDPServidor() {
@@ -47,22 +50,30 @@ public class UDPServidor implements Runnable {
                 DatagramPacket requisicao = new DatagramPacket(buffer, buffer.length);
                 aSoquete.receive(requisicao);
 
-                RetornoEntradaEnum respostaRequisicao = tratarRequisicao(requisicao);
+                RetornoEnum respostaRequisicao = tratarRequisicao(requisicao);
+                if (respostaRequisicao == RetornoEnum.ERRO_SIZE) {
+                    String msgErro = "00";
+                    buffer = msgErro.getBytes();
+                    DatagramPacket resposta = new DatagramPacket(buffer, msgErro.length(), requisicao.getAddress(), requisicao.getPort());
+                    aSoquete.send(resposta);
+                    return;
+                }
                 int tamResp = requisicao.getLength();
                 String req = new String(requisicao.getData(), 0, tamResp);
                 String tmp;
                 tmp = "1";
                 tmp += String.format("%12s", req.substring(6, 18));
                 switch (respostaRequisicao) {
-                    case OK:
+                    case ENTRADA_OK:
                         tmp += 0;
                         break;
-                    case BANIDO:
+                    case ENTRADA_NAO_CADASTRADO:
                         tmp += 1;
                         break;
-                    case NAO_CADASTRADO:
+                    case ENTRADA_BANIDO:
                         tmp += 2;
                         break;
+
                 }
 
                 String usuario = System.getProperty("user.name");
@@ -77,7 +88,7 @@ public class UDPServidor implements Runnable {
             System.out.println("IO: " + e.getMessage());
         } finally {
             if (aSoquete != null) {
-                aSoquete.close();
+                //               aSoquete.close();
             }
         }
     }
