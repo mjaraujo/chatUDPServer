@@ -59,7 +59,7 @@ public class LoginForm extends javax.swing.JFrame {
 
         btnCancelar.setText("CANCELAR");
 
-        btnEntrar.setBackground(new java.awt.Color(204, 0, 0));
+        btnEntrar.setBackground(new java.awt.Color(255, 255, 255));
         btnEntrar.setText("ENTRAR");
         btnEntrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "tipo", discriminatorType = DiscriminatorType.STRING)
-@Table(name = "tb_pessoa", catalog = "chatUDP", schema = "")
+@Table(name = "tb_pessoa", catalog = "chatudp", schema = "")
 @DiscriminatorValue("dummy")
 @XmlRootElement
 @NamedQueries({
