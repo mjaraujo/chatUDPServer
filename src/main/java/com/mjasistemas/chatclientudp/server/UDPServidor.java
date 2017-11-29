@@ -7,6 +7,8 @@ package com.mjasistemas.chatclientudp.server;
 
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
 import com.mjasistemas.chatclientudp.model.RetornoEnum;
+import com.mjasistemas.chatclientudp.model.StatusLoginPessoaEnum;
+import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import java.net.*;
 import java.io.*;
 
@@ -18,11 +20,42 @@ public class UDPServidor implements Runnable {
         int tamResp = requisicao.getLength();
         String tmp = new String(requisicao.getData(), 0, tamResp);
 
-        int tipo = Integer.parseInt(tmp.toString().substring(0, 1));
+        int tipo = Integer.parseInt(tmp.toString().substring(0, 2));
         switch (tipo) {
+            case 0://logar no sistema
+                //verificar situação do usuário ex: se está banido
+                if (tamResp != 34) {
+                    return RetornoEnum.ERRO_SIZE;
+                }
+                String apelido = tmp.substring(2, 13).trim(); //apelido
+                String senha = tmp.substring(14, 33).trim(); //senha
+                Pessoa permitirLogin = new UsuarioController().permitirLogin(apelido, senha);
+                StatusLoginPessoaEnum retornoLogin = StatusLoginPessoaEnum.OK;
+                retornoLogin = permitirLogin== null ? StatusLoginPessoaEnum.NAO_EXISTE : StatusLoginPessoaEnum.OK;
+                retornoLogin = permitirLogin.getId() < 0 ? StatusLoginPessoaEnum.SENHA_INVALIDA : StatusLoginPessoaEnum.OK;
+                //pareiiiiii
+                String resposta = "00";
+
+                switch (retornoLogin) {
+                    case OK:
+                        resposta += "0";
+                        int sala = Integer.parseInt(tmp.substring(1, 6).trim());
+                        resposta += String.format("%05d", sala);
+                        msg += String.format("%12s", usuario);
+
+                        break;
+                    case NAO_EXISTE:
+                        resposta += "1";
+                        break;
+                    case SENHA_INVALIDA:
+                        resposta += "2";
+                        break;
+                }
+                break;
+
             case 1://entrar na sala
                 //verificar situação do usuário ex: se está banido
-                if (tamResp != 18) {
+                if (tamResp != 34) {
                     return RetornoEnum.ERRO_SIZE;
                 }
                 String apelido = tmp.substring(6, 18).trim(); //apelido
@@ -34,6 +67,8 @@ public class UDPServidor implements Runnable {
                 } else {
                     return RetornoEnum.ENTRADA_BANIDO;
                 }
+                break;
+
         }
         return RetornoEnum.ENTRADA_NAO_CADASTRADO;
     }
