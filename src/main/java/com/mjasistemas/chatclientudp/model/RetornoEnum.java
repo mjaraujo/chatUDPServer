@@ -12,6 +12,7 @@ package com.mjasistemas.chatclientudp.model;
 public enum RetornoEnum {
 
     ENTRADA_OK("Entrada permitida"),
+    SOLICITACAO_PROCESSADA("Solicitação processada"),
     ENTRADA_BANIDO("Usuário banido da sala"),
     ENTRADA_NAO_CADASTRADO("Usuário não cadastrado"),
     ERRO_SIZE("Tamanho da mensagem incorreto");

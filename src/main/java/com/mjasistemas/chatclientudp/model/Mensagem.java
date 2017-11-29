@@ -148,5 +148,5 @@ public class Mensagem implements Serializable {
     public String toString() {
         return "com.mjasistemas.chatclientudp.model.Mensagem[ id=" + id + " ]";
     }
-    
+
 }

@@ -9,14 +9,17 @@ import com.mjasistemas.chatclientudp.controller.UsuarioController;
 import com.mjasistemas.chatclientudp.model.RetornoEnum;
 import com.mjasistemas.chatclientudp.model.StatusLoginPessoaEnum;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
+import com.mjasistemas.chatclientudp.model.pessoa.TipoPessoaEnum;
 import java.net.*;
 import java.io.*;
 
 public class UDPServidor implements Runnable {
 
+    private String resposta;
     private DatagramSocket aSoquete = null;
 
     private RetornoEnum tratarRequisicao(DatagramPacket requisicao) {
+        resposta = "";
         int tamResp = requisicao.getLength();
         String tmp = new String(requisicao.getData(), 0, tamResp);
 
@@ -27,30 +30,40 @@ public class UDPServidor implements Runnable {
                 if (tamResp != 34) {
                     return RetornoEnum.ERRO_SIZE;
                 }
-                String apelido = tmp.substring(2, 13).trim(); //apelido
-                String senha = tmp.substring(14, 33).trim(); //senha
-                Pessoa permitirLogin = new UsuarioController().permitirLogin(apelido, senha);
+                String apelido = tmp.substring(2, 14).trim(); //apelido
+                String senha = tmp.substring(14, 34).trim(); //senha
+                Pessoa pessoaLogada = new UsuarioController().permitirLogin(apelido, senha);
                 StatusLoginPessoaEnum retornoLogin = StatusLoginPessoaEnum.OK;
-                retornoLogin = permitirLogin== null ? StatusLoginPessoaEnum.NAO_EXISTE : StatusLoginPessoaEnum.OK;
-                retornoLogin = permitirLogin.getId() < 0 ? StatusLoginPessoaEnum.SENHA_INVALIDA : StatusLoginPessoaEnum.OK;
+                retornoLogin = pessoaLogada == null ? StatusLoginPessoaEnum.NAO_EXISTE : StatusLoginPessoaEnum.OK;
+                retornoLogin = pessoaLogada.getId() < 0 ? StatusLoginPessoaEnum.SENHA_INVALIDA : StatusLoginPessoaEnum.OK;
                 //pareiiiiii
-                String resposta = "00";
-
+                resposta = "00";
                 switch (retornoLogin) {
                     case OK:
-                        resposta += "0";
                         int sala = Integer.parseInt(tmp.substring(1, 6).trim());
-                        resposta += String.format("%05d", sala);
-                        msg += String.format("%12s", usuario);
-
-                        break;
+                        resposta += "0";
+                        resposta += String.format("%05d", pessoaLogada.getId());
+                        resposta += String.format("%12s", pessoaLogada.getNickName());
+                        switch (pessoaLogada.getTipo()) {
+                            case ADMINISTRADOR:
+                                resposta += "0";
+                                break;
+                            case MODERADOR:
+                                resposta += "1";
+                                break;
+                            case USUARIO:
+                                resposta += "2";
+                                break;
+                        }
+                        return RetornoEnum.SOLICITACAO_PROCESSADA;
                     case NAO_EXISTE:
                         resposta += "1";
-                        break;
+                       return RetornoEnum.SOLICITACAO_PROCESSADA;
                     case SENHA_INVALIDA:
                         resposta += "2";
-                        break;
+                        return RetornoEnum.SOLICITACAO_PROCESSADA;
                 }
+
                 break;
 
             case 1://entrar na sala
@@ -58,7 +71,7 @@ public class UDPServidor implements Runnable {
                 if (tamResp != 34) {
                     return RetornoEnum.ERRO_SIZE;
                 }
-                String apelido = tmp.substring(6, 18).trim(); //apelido
+                apelido = tmp.substring(6, 18).trim(); //apelido
                 int sala = Integer.parseInt(tmp.substring(1, 6).trim()); // sala
 
                 boolean acesso = new UsuarioController().permitirAcessoSala(apelido, sala);
@@ -67,7 +80,6 @@ public class UDPServidor implements Runnable {
                 } else {
                     return RetornoEnum.ENTRADA_BANIDO;
                 }
-                break;
 
         }
         return RetornoEnum.ENTRADA_NAO_CADASTRADO;
@@ -86,6 +98,13 @@ public class UDPServidor implements Runnable {
                 aSoquete.receive(requisicao);
 
                 RetornoEnum respostaRequisicao = tratarRequisicao(requisicao);
+
+                if (respostaRequisicao == RetornoEnum.SOLICITACAO_PROCESSADA) {
+                    buffer = resposta.getBytes();
+                    DatagramPacket msgResposta = new DatagramPacket(buffer, this.resposta.length(), requisicao.getAddress(), requisicao.getPort());
+                    aSoquete.send(msgResposta);
+                    return;
+                }
                 if (respostaRequisicao == RetornoEnum.ERRO_SIZE) {
                     String msgErro = "00";
                     buffer = msgErro.getBytes();
@@ -93,6 +112,7 @@ public class UDPServidor implements Runnable {
                     aSoquete.send(resposta);
                     return;
                 }
+
                 int tamResp = requisicao.getLength();
                 String req = new String(requisicao.getData(), 0, tamResp);
                 String tmp;
@@ -123,7 +143,7 @@ public class UDPServidor implements Runnable {
             System.out.println("IO: " + e.getMessage());
         } finally {
             if (aSoquete != null) {
-                //               aSoquete.close();
+                //aSoquete.close();
             }
         }
     }
@@ -131,6 +151,20 @@ public class UDPServidor implements Runnable {
     @Override
     public void run() {
         iniciar();
+    }
+
+    /**
+     * @return the resposta
+     */
+    public String getResposta() {
+        return resposta;
+    }
+
+    /**
+     * @param resposta the resposta to set
+     */
+    public void setResposta(String resposta) {
+        this.resposta = resposta;
     }
 
 }
