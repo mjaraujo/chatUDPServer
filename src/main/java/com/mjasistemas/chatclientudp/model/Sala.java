@@ -63,7 +63,7 @@ public class Sala implements Serializable {
     private StatusSalaEnum status;
     @Basic(optional = false)
     @Column(nullable = false)
-    private int capacidade;
+    private Integer capacidade;
     @Basic(optional = false)
     @Column(nullable = false, length = 100)
     private String nome;
@@ -87,7 +87,7 @@ public class Sala implements Serializable {
     }
 
     
-    public int getCapacidade() {
+    public Integer getCapacidade() {
         return capacidade;
     }
 

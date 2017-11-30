@@ -71,13 +71,14 @@ public class UDPServidor implements Runnable {
                 //verificar situação do usuário ex: se está banido
                 apelido = tmp.substring(2, 14).trim(); //apelido
                 List<Sala> allAbertas = new SalaDao().getAllAbertas();
-                resposta += "01";
+                resposta += "010";
                 resposta += String.format("%02d", allAbertas.size());
-                for (Sala sala: allAbertas) {
-                    resposta+=String.format("%05d", sala.getId());
-                    resposta+=String.format("%100s", sala.getNome());
-                    resposta+=String.format("%5d", sala.getCapacidade());
+                for (Sala sala : allAbertas) {
+                    resposta += String.format("%05d", sala.getId());
+                    resposta += String.format("%40s", sala.getNome());
+                    resposta += String.format("%03d", sala.getCapacidade());
                 }
+                resposta += " ";
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
 
         }
@@ -92,7 +93,7 @@ public class UDPServidor implements Runnable {
         try {
             aSoquete = new DatagramSocket(9876);
             while (true) {
-                byte[] buffer = new byte[100];
+                byte[] buffer = new byte[4096];
                 DatagramPacket requisicao = new DatagramPacket(buffer, buffer.length);
                 aSoquete.receive(requisicao);
 
@@ -100,15 +101,15 @@ public class UDPServidor implements Runnable {
 
                 if (respostaRequisicao == RetornoEnum.SOLICITACAO_PROCESSADA) {
                     buffer = resposta.getBytes();
-                    DatagramPacket msgResposta = new DatagramPacket(buffer, this.resposta.length(), requisicao.getAddress(), requisicao.getPort());
+                    DatagramPacket msgResposta = new DatagramPacket(buffer, resposta.length(), requisicao.getAddress(), requisicao.getPort());
                     aSoquete.send(msgResposta);
                     //return;
                 }
                 if (respostaRequisicao == RetornoEnum.ERRO_SIZE) {
                     String msgErro = "00";
                     buffer = msgErro.getBytes();
-                    DatagramPacket resposta = new DatagramPacket(buffer, msgErro.length(), requisicao.getAddress(), requisicao.getPort());
-                    aSoquete.send(resposta);
+                    DatagramPacket dtResposta = new DatagramPacket(buffer, msgErro.length(), requisicao.getAddress(), requisicao.getPort());
+                    aSoquete.send(dtResposta);
                     //return;
                 }
 
