@@ -6,12 +6,12 @@
 package com.mjasistemas.chatclientudp.server;
 
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
+import com.mjasistemas.chatclientudp.dao.Pessoa.PessoaDao;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
 import com.mjasistemas.chatclientudp.model.RetornoEnum;
 import com.mjasistemas.chatclientudp.model.Sala;
 import com.mjasistemas.chatclientudp.model.StatusLoginPessoaEnum;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
-import com.mjasistemas.chatclientudp.model.pessoa.TipoPessoaEnum;
 import java.net.*;
 import java.io.*;
 import java.util.List;
@@ -22,6 +22,7 @@ public class UDPServidor implements Runnable {
     private DatagramSocket aSoquete = null;
 
     private RetornoEnum tratarRequisicao(DatagramPacket requisicao) {
+        int sala = 0;
         resposta = "";
         int tamResp = requisicao.getLength();
         String tmp = new String(requisicao.getData(), 0, tamResp);
@@ -41,7 +42,7 @@ public class UDPServidor implements Runnable {
                 resposta = "00";
                 switch (retornoLogin) {
                     case OK:
-                        int sala = Integer.parseInt(tmp.substring(1, 6).trim());
+                        sala = Integer.parseInt(tmp.substring(1, 6).trim());
                         resposta += "0";
                         resposta += String.format("%05d", pessoaLogada.getId());
                         resposta += String.format("%12s", pessoaLogada.getNickName());
@@ -73,12 +74,33 @@ public class UDPServidor implements Runnable {
                 List<Sala> allAbertas = new SalaDao().getAllAbertas();
                 resposta += "010";
                 resposta += String.format("%02d", allAbertas.size());
-                for (Sala sala : allAbertas) {
-                    resposta += String.format("%05d", sala.getId());
-                    resposta += String.format("%40s", sala.getNome());
-                    resposta += String.format("%03d", sala.getCapacidade());
+                for (Sala s : allAbertas) {
+                    resposta += String.format("%05d", s.getId());
+                    resposta += String.format("%40s", s.getNome());
+                    resposta += String.format("%03d", s.getCapacidade());
                 }
                 resposta += " ";
+                return RetornoEnum.SOLICITACAO_PROCESSADA;
+            case 2://solicitar entrar na sala
+                //verificar situação do usuário ex: se está banido
+                sala = Integer.parseInt(tmp.substring(4, 7));
+                apelido = tmp.substring(8, 19).trim(); //apelido
+                resposta += "020";
+                resposta += String.format("%12s", apelido);
+                Pessoa pessoaEntrada = new UsuarioController().acessarSala(apelido, sala);
+                new PessoaDao().update(pessoaEntrada);
+                return RetornoEnum.SOLICITACAO_PROCESSADA;
+            case 3://solicitar logados na sala
+                //verificar situação do usuário ex: se está banido
+                apelido = tmp.substring(3, 14).trim(); //apelido
+                sala = Integer.parseInt(tmp.substring(14, 19));
+                resposta += "030";
+                List<Pessoa> logadosSala = new UsuarioController().logadosSala(apelido, sala);
+                resposta += String.format("%02d", logadosSala.size());
+                for (Pessoa p: logadosSala) {
+                    resposta+=String.format("%05d", p.getId());
+                    resposta+=String.format("%12s", p.getNickName());
+                }
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
 
         }

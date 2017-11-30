@@ -47,6 +47,20 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Pessoa.findBySenha", query = "SELECT p FROM Pessoa p WHERE p.senha = :senha")})
 public abstract class Pessoa implements Serializable {
 
+    /**
+     * @return the sala
+     */
+    public Integer getSala() {
+        return sala;
+    }
+
+    /**
+     * @param sala the sala to set
+     */
+    public void setSala(Integer sala) {
+        this.sala = sala;
+    }
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +76,9 @@ public abstract class Pessoa implements Serializable {
     @Basic(optional = false)
     @Column(nullable = false, length = 8)
     private String senha;
+    @Basic(optional = false)
+    @Column(nullable = false)
+    private Integer sala;
     @Transient
     private TipoPessoaEnum tipo;
 

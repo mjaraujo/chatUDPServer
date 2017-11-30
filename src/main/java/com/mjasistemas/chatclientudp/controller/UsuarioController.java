@@ -42,5 +42,17 @@ public class UsuarioController {
         return pessoa;
 
     }
+    
+    public Pessoa acessarSala(String apelido, int sala) {
+        Pessoa pessoa = new PessoaDao().getByNickName(apelido);
+        pessoa.setSala(sala);
+        return pessoa;
+
+    }
+    
+    public List<Pessoa> logadosSala(String apelido, int sala) {
+        return new PessoaDao().getLogadosSala(sala);
+
+    }
 
 }

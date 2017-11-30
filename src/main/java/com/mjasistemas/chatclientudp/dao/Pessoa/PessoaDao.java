@@ -8,6 +8,7 @@ package com.mjasistemas.chatclientudp.dao.Pessoa;
 import com.mjasistemas.chatclientudp.FormatFacade;
 import com.mjasistemas.chatclientudp.dao.GenericDAO;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
+import java.util.List;
 
 /**
  *
@@ -24,4 +25,8 @@ public class PessoaDao extends GenericDAO<Pessoa> {
         return this.listOne("nickName", nick, Pessoa.class);
     }
 
+    public List<Pessoa> getLogadosSala(int sala){
+        this.addParams("sala",String.valueOf(sala));
+        return this.newQueryBuilder(Pessoa.class);
+    }
 }
