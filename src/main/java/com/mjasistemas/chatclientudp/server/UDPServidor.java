@@ -24,13 +24,11 @@ public class UDPServidor implements Runnable {
         String tmp = new String(requisicao.getData(), 0, tamResp);
 
         int tipo = Integer.parseInt(tmp.toString().substring(0, 2));
+        String apelido = "";
         switch (tipo) {
             case 0://logar no sistema
                 //verificar situação do usuário ex: se está banido
-                if (tamResp != 34) {
-                    return RetornoEnum.ERRO_SIZE;
-                }
-                String apelido = tmp.substring(2, 14).trim(); //apelido
+                apelido = tmp.substring(2, 14).trim(); //apelido
                 String senha = tmp.substring(14, 34).trim(); //senha
                 Pessoa pessoaLogada = new UsuarioController().permitirLogin(apelido, senha);
                 StatusLoginPessoaEnum retornoLogin = StatusLoginPessoaEnum.OK;
@@ -58,7 +56,7 @@ public class UDPServidor implements Runnable {
                         return RetornoEnum.SOLICITACAO_PROCESSADA;
                     case NAO_EXISTE:
                         resposta += "1";
-                       return RetornoEnum.SOLICITACAO_PROCESSADA;
+                        return RetornoEnum.SOLICITACAO_PROCESSADA;
                     case SENHA_INVALIDA:
                         resposta += "2";
                         return RetornoEnum.SOLICITACAO_PROCESSADA;
@@ -66,11 +64,9 @@ public class UDPServidor implements Runnable {
 
                 break;
 
-            case 1://entrar na sala
+            case 1://solicitar salas
+                apelido = tmp.substring(2, 14).trim(); //apelido
                 //verificar situação do usuário ex: se está banido
-                if (tamResp != 34) {
-                    return RetornoEnum.ERRO_SIZE;
-                }
                 apelido = tmp.substring(6, 18).trim(); //apelido
                 int sala = Integer.parseInt(tmp.substring(1, 6).trim()); // sala
 
@@ -92,8 +88,8 @@ public class UDPServidor implements Runnable {
 
         try {
             aSoquete = new DatagramSocket(9876);
-            byte[] buffer = new byte[100];
             while (true) {
+                byte[] buffer = new byte[100];
                 DatagramPacket requisicao = new DatagramPacket(buffer, buffer.length);
                 aSoquete.receive(requisicao);
 
@@ -103,39 +99,16 @@ public class UDPServidor implements Runnable {
                     buffer = resposta.getBytes();
                     DatagramPacket msgResposta = new DatagramPacket(buffer, this.resposta.length(), requisicao.getAddress(), requisicao.getPort());
                     aSoquete.send(msgResposta);
-                    return;
+                    //return;
                 }
                 if (respostaRequisicao == RetornoEnum.ERRO_SIZE) {
                     String msgErro = "00";
                     buffer = msgErro.getBytes();
                     DatagramPacket resposta = new DatagramPacket(buffer, msgErro.length(), requisicao.getAddress(), requisicao.getPort());
                     aSoquete.send(resposta);
-                    return;
+                    //return;
                 }
 
-                int tamResp = requisicao.getLength();
-                String req = new String(requisicao.getData(), 0, tamResp);
-                String tmp;
-                tmp = "1";
-                tmp += String.format("%12s", req.substring(6, 18));
-                switch (respostaRequisicao) {
-                    case ENTRADA_OK:
-                        tmp += 0;
-                        break;
-                    case ENTRADA_NAO_CADASTRADO:
-                        tmp += 1;
-                        break;
-                    case ENTRADA_BANIDO:
-                        tmp += 2;
-                        break;
-
-                }
-
-                String usuario = System.getProperty("user.name");
-
-                buffer = tmp.getBytes();
-                DatagramPacket resposta = new DatagramPacket(buffer, tmp.length(), requisicao.getAddress(), requisicao.getPort());
-                aSoquete.send(resposta);
             }
         } catch (SocketException e) {
             System.out.println("Soquete: " + e.getMessage());

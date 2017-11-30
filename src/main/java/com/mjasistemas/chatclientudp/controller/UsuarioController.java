@@ -11,6 +11,7 @@ import com.mjasistemas.chatclientudp.model.Banidos;
 import com.mjasistemas.chatclientudp.model.Sala;
 import com.mjasistemas.chatclientudp.model.StatusLoginPessoaEnum;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
+import com.mjasistemas.chatclientudp.model.pessoa.Usuario;
 import java.util.List;
 
 /**
@@ -31,8 +32,11 @@ public class UsuarioController {
         Pessoa pessoa = new PessoaDao().getByNickName(apelido);
         if (pessoa == null) {
             return pessoa;
-        } else if (!pessoa.getSenha().equals(senha)) {
-            pessoa.setId(-1);
+        }
+        if (!pessoa.getSenha().equals(senha)) {
+            Pessoa erroSenha = new Usuario();
+            erroSenha.setId(-1);
+            return erroSenha;
         }
 
         return pessoa;
