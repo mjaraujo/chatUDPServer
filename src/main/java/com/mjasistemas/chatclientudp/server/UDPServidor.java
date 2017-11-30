@@ -6,12 +6,15 @@
 package com.mjasistemas.chatclientudp.server;
 
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
+import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
 import com.mjasistemas.chatclientudp.model.RetornoEnum;
+import com.mjasistemas.chatclientudp.model.Sala;
 import com.mjasistemas.chatclientudp.model.StatusLoginPessoaEnum;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import com.mjasistemas.chatclientudp.model.pessoa.TipoPessoaEnum;
 import java.net.*;
 import java.io.*;
+import java.util.List;
 
 public class UDPServidor implements Runnable {
 
@@ -65,17 +68,17 @@ public class UDPServidor implements Runnable {
                 break;
 
             case 1://solicitar salas
-                apelido = tmp.substring(2, 14).trim(); //apelido
                 //verificar situação do usuário ex: se está banido
-                apelido = tmp.substring(6, 18).trim(); //apelido
-                int sala = Integer.parseInt(tmp.substring(1, 6).trim()); // sala
-
-                boolean acesso = new UsuarioController().permitirAcessoSala(apelido, sala);
-                if (acesso) {
-                    return RetornoEnum.ENTRADA_OK;
-                } else {
-                    return RetornoEnum.ENTRADA_BANIDO;
+                apelido = tmp.substring(2, 14).trim(); //apelido
+                List<Sala> allAbertas = new SalaDao().getAllAbertas();
+                resposta += "01";
+                resposta += String.format("%02d", allAbertas.size());
+                for (Sala sala: allAbertas) {
+                    resposta+=String.format("%05d", sala.getId());
+                    resposta+=String.format("%100s", sala.getNome());
+                    resposta+=String.format("%5d", sala.getCapacidade());
                 }
+                return RetornoEnum.SOLICITACAO_PROCESSADA;
 
         }
         return RetornoEnum.ENTRADA_NAO_CADASTRADO;
