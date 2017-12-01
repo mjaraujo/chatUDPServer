@@ -6,7 +6,7 @@
 package com.mjasistemas.chatclientudp.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -54,9 +54,8 @@ public class Mensagem implements Serializable {
     @Column(nullable = false, length = 255)
     private String conteudo;
     @Basic(optional = false)
-    @Column(nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timestamp;
+    @Column(name = "timestamp", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Timestamp timestamp;
     @JoinColumn(name = "sessao", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
     private Sessao sessao;
@@ -68,7 +67,7 @@ public class Mensagem implements Serializable {
         this.id = id;
     }
 
-    public Mensagem(Integer id, int destinatario, int remetente, String conteudo, Date timestamp) {
+    public Mensagem(Integer id, int destinatario, int remetente, String conteudo, Timestamp timestamp) {
         this.id = id;
         this.destinatario = destinatario;
         this.remetente = remetente;
@@ -108,11 +107,11 @@ public class Mensagem implements Serializable {
         this.conteudo = conteudo;
     }
 
-    public Date getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 

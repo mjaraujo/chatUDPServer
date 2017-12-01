@@ -8,12 +8,15 @@ package com.mjasistemas.chatclientudp.server;
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
 import com.mjasistemas.chatclientudp.dao.Pessoa.PessoaDao;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
+import com.mjasistemas.chatclientudp.model.Mensagem;
 import com.mjasistemas.chatclientudp.model.RetornoEnum;
 import com.mjasistemas.chatclientudp.model.Sala;
 import com.mjasistemas.chatclientudp.model.StatusLoginPessoaEnum;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import java.net.*;
 import java.io.*;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 
 public class UDPServidor implements Runnable {
@@ -102,6 +105,32 @@ public class UDPServidor implements Runnable {
                     resposta+=String.format("%12s", p.getNickName());
                 }
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
+            case 4://solicitar envio de mensagem
+                sala = Integer.parseInt(tmp.substring(3, 8).trim()); //apelido
+                String from = tmp.substring(8,20).trim();
+                String to = tmp.substring(20,32).trim();
+                String mensagem = tmp.substring(32,232).trim();
+                Mensagem msgChat = new Mensagem();
+                msgChat.setRemetente(new PessoaDao().getByNickName(from).getId());
+                msgChat.setDestinatario(new PessoaDao().getByNickName(to).getId());
+                msgChat.setConteudo(mensagem);
+                msgChat.setTimestamp(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+                
+                resposta += "040";
+                
+                return RetornoEnum.SOLICITACAO_PROCESSADA;
+            case 5://solicitar envio novas mensagens
+                //verificar situação do usuário ex: se está banido
+                sala = Integer.parseInt(tmp.substring(3, 8).trim()); 
+                String timestamp = tmp.substring(8, 30); 
+                
+                
+                
+                
+                resposta += "040";
+                
+                return RetornoEnum.SOLICITACAO_PROCESSADA;
+                
 
         }
         return RetornoEnum.ENTRADA_NAO_CADASTRADO;
