@@ -104,4 +104,24 @@ public class GenericDAO<T> implements iGenericDAO<T> {
         params.add(parametro);
         values.add(valor);
     }
+    
+    public List newQueryNamedSingleParam(String namedQuery) {
+        
+        List<T> objects= manager.createNamedQuery(namedQuery)
+                .setParameter(params.poll(), values.poll())
+                .getResultList();
+        
+        return objects;
+    }
+    
+    public List newQueryNamedDoubleParam(String namedQuery) {
+        
+        List<T> objects= manager.createNamedQuery(namedQuery)
+                .setParameter(params.poll(), values.poll())
+                .setParameter(params.poll(), values.poll())
+                .getResultList();
+        
+        return objects;
+    }
+    
 }

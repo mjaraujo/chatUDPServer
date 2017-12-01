@@ -18,8 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -35,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Mensagem.findByDestinatario", query = "SELECT m FROM Mensagem m WHERE m.destinatario = :destinatario")
     , @NamedQuery(name = "Mensagem.findByRemetente", query = "SELECT m FROM Mensagem m WHERE m.remetente = :remetente")
     , @NamedQuery(name = "Mensagem.findByConteudo", query = "SELECT m FROM Mensagem m WHERE m.conteudo = :conteudo")
+    , @NamedQuery(name = "Mensagem.findByLastTimestamp", query = "SELECT m FROM Mensagem m WHERE m.sessao m.timestamp > :timestamp")
     , @NamedQuery(name = "Mensagem.findByTimestamp", query = "SELECT m FROM Mensagem m WHERE m.timestamp = :timestamp")})
 public class Mensagem implements Serializable {
 
@@ -58,7 +57,7 @@ public class Mensagem implements Serializable {
     private Timestamp timestamp;
     @JoinColumn(name = "sessao", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    private Sessao sessao;
+    private Sala sala;
 
     public Mensagem() {
     }
@@ -115,12 +114,12 @@ public class Mensagem implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Sessao getSessao() {
-        return sessao;
+    public Sala getSala() {
+        return sala;
     }
 
-    public void setSessao(Sessao sessao) {
-        this.sessao = sessao;
+    public void setSessao(Sala sala) {
+        this.sala = sala;
     }
 
     @Override

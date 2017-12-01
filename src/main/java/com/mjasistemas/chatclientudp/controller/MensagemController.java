@@ -5,6 +5,7 @@
  */
 package com.mjasistemas.chatclientudp.controller;
 
+import com.mjasistemas.chatclientudp.dao.mensagem.MensagemDao;
 import com.mjasistemas.chatclientudp.model.Mensagem;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class MensagemController {
 
-    public List<Mensagem> solicitarNovasMensagens(String timestamp) {
-        return null;   //ArrayList<Mensagem> mensagens = new MensagemDao().;
+    public List<Mensagem> solicitarNovasMensagens(int idSala, String timestamp) {
+        return new MensagemDao().getUltimasMensagens(idSala, timestamp);
     }
 }

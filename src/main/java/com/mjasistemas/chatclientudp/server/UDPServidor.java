@@ -5,6 +5,7 @@
  */
 package com.mjasistemas.chatclientudp.server;
 
+import com.mjasistemas.chatclientudp.controller.MensagemController;
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
 import com.mjasistemas.chatclientudp.dao.Pessoa.PessoaDao;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
@@ -100,37 +101,40 @@ public class UDPServidor implements Runnable {
                 resposta += "030";
                 List<Pessoa> logadosSala = new UsuarioController().logadosSala(apelido, sala);
                 resposta += String.format("%02d", logadosSala.size());
-                for (Pessoa p: logadosSala) {
-                    resposta+=String.format("%05d", p.getId());
-                    resposta+=String.format("%12s", p.getNickName());
+                for (Pessoa p : logadosSala) {
+                    resposta += String.format("%05d", p.getId());
+                    resposta += String.format("%12s", p.getNickName());
                 }
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
             case 4://solicitar envio de mensagem
                 sala = Integer.parseInt(tmp.substring(3, 8).trim()); //apelido
-                String from = tmp.substring(8,20).trim();
-                String to = tmp.substring(20,32).trim();
-                String mensagem = tmp.substring(32,232).trim();
+                String from = tmp.substring(8, 20).trim();
+                String to = tmp.substring(20, 32).trim();
+                String mensagem = tmp.substring(32, 232).trim();
                 Mensagem msgChat = new Mensagem();
                 msgChat.setRemetente(new PessoaDao().getByNickName(from).getId());
                 msgChat.setDestinatario(new PessoaDao().getByNickName(to).getId());
                 msgChat.setConteudo(mensagem);
                 msgChat.setTimestamp(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-                
+
                 resposta += "040";
-                
+
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
-            case 5://solicitar envio novas mensagens
-                //verificar situação do usuário ex: se está banido
-                sala = Integer.parseInt(tmp.substring(3, 8).trim()); 
-                String timestamp = tmp.substring(8, 30); 
-                
-                
-                
-                
-                resposta += "040";
-                
+            case 5://solicitar envio novas mensagens                
+                sala = Integer.parseInt(tmp.substring(3, 8).trim());
+                String timestamp = tmp.substring(8, 30);
+
+                resposta += "050";
+                List<Mensagem> novasMensagens = new MensagemController().solicitarNovasMensagens(sala, timestamp);
+                resposta += String.format("%03d", novasMensagens.size());
+                for (Mensagem m : novasMensagens) {
+                    resposta+=String.format("%22s", m.getTimestamp());
+                    resposta+=String.format("%12s",new PessoaDao().getById(m.getRemetente()).getNickName());
+                    resposta+=String.format("%12s",new PessoaDao().getById(m.getDestinatario()).getNickName());
+                    resposta+=String.format("%200s",m.getConteudo());
+                }
+
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
-                
 
         }
         return RetornoEnum.ENTRADA_NAO_CADASTRADO;
