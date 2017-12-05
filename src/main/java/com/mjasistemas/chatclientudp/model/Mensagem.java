@@ -6,9 +6,8 @@
 package com.mjasistemas.chatclientudp.model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,15 +26,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author marcio
  */
 @Entity
-@Table(name = "tb_mensagem", catalog = "chatudp", schema = "")
+@Table(name = "tb_mensagem")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Mensagem.findAll", query = "SELECT m FROM Mensagem m")
     , @NamedQuery(name = "Mensagem.findById", query = "SELECT m FROM Mensagem m WHERE m.id = :id")
+    , @NamedQuery(name = "Mensagem.findByConteudo", query = "SELECT m FROM Mensagem m WHERE m.conteudo = :conteudo")
     , @NamedQuery(name = "Mensagem.findByDestinatario", query = "SELECT m FROM Mensagem m WHERE m.destinatario = :destinatario")
     , @NamedQuery(name = "Mensagem.findByRemetente", query = "SELECT m FROM Mensagem m WHERE m.remetente = :remetente")
-    , @NamedQuery(name = "Mensagem.findByConteudo", query = "SELECT m FROM Mensagem m WHERE m.conteudo = :conteudo")
-    , @NamedQuery(name = "Mensagem.findByLastTimestamp", query = "SELECT m FROM Mensagem m WHERE m.sessao m.timestamp > :timestamp")
     , @NamedQuery(name = "Mensagem.findByTimestamp", query = "SELECT m FROM Mensagem m WHERE m.timestamp = :timestamp")})
 public class Mensagem implements Serializable {
 
@@ -41,21 +41,16 @@ public class Mensagem implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(nullable = false)
     private Integer id;
     @Basic(optional = false)
-    @Column(nullable = false)
-    private int destinatario;
-    @Basic(optional = false)
-    @Column(nullable = false)
-    private int remetente;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 255)
     private String conteudo;
     @Basic(optional = false)
-    @Column(name = "timestamp", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp timestamp;
-    @JoinColumn(name = "sessao", referencedColumnName = "id", nullable = false)
+    private int destinatario;
+    @Basic(optional = false)
+    private int remetente;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
+    @JoinColumn(name = "sala", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Sala sala;
 
@@ -66,12 +61,11 @@ public class Mensagem implements Serializable {
         this.id = id;
     }
 
-    public Mensagem(Integer id, int destinatario, int remetente, String conteudo, Timestamp timestamp) {
+    public Mensagem(Integer id, String conteudo, int destinatario, int remetente) {
         this.id = id;
+        this.conteudo = conteudo;
         this.destinatario = destinatario;
         this.remetente = remetente;
-        this.conteudo = conteudo;
-        this.timestamp = timestamp;
     }
 
     public Integer getId() {
@@ -80,6 +74,14 @@ public class Mensagem implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getConteudo() {
+        return conteudo;
+    }
+
+    public void setConteudo(String conteudo) {
+        this.conteudo = conteudo;
     }
 
     public int getDestinatario() {
@@ -98,19 +100,11 @@ public class Mensagem implements Serializable {
         this.remetente = remetente;
     }
 
-    public String getConteudo() {
-        return conteudo;
-    }
-
-    public void setConteudo(String conteudo) {
-        this.conteudo = conteudo;
-    }
-
-    public Timestamp getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -118,7 +112,7 @@ public class Mensagem implements Serializable {
         return sala;
     }
 
-    public void setSessao(Sala sala) {
+    public void setSala(Sala sala) {
         this.sala = sala;
     }
 
@@ -146,5 +140,5 @@ public class Mensagem implements Serializable {
     public String toString() {
         return "com.mjasistemas.chatclientudp.model.Mensagem[ id=" + id + " ]";
     }
-
+    
 }

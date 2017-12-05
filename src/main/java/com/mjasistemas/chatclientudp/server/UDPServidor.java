@@ -9,6 +9,7 @@ import com.mjasistemas.chatclientudp.controller.MensagemController;
 import com.mjasistemas.chatclientudp.controller.UsuarioController;
 import com.mjasistemas.chatclientudp.dao.Pessoa.PessoaDao;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
+import com.mjasistemas.chatclientudp.dao.mensagem.MensagemDao;
 import com.mjasistemas.chatclientudp.model.Mensagem;
 import com.mjasistemas.chatclientudp.model.RetornoEnum;
 import com.mjasistemas.chatclientudp.model.Sala;
@@ -110,13 +111,14 @@ public class UDPServidor implements Runnable {
                 sala = Integer.parseInt(tmp.substring(3, 8).trim()); //apelido
                 String from = tmp.substring(8, 20).trim();
                 String to = tmp.substring(20, 32).trim();
-                String mensagem = tmp.substring(32, 232).trim();
+                String mensagem = tmp.substring(32, 231).trim();
                 Mensagem msgChat = new Mensagem();
                 msgChat.setRemetente(new PessoaDao().getByNickName(from).getId());
                 msgChat.setDestinatario(new PessoaDao().getByNickName(to).getId());
                 msgChat.setConteudo(mensagem);
+                msgChat.setSala(new SalaDao().getById(sala));
                 msgChat.setTimestamp(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-
+                new MensagemDao().save(msgChat);
                 resposta += "040";
 
                 return RetornoEnum.SOLICITACAO_PROCESSADA;

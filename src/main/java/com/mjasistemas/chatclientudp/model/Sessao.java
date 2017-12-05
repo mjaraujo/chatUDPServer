@@ -53,9 +53,7 @@ public class Sessao implements Serializable {
     @JoinColumn(name = "sala", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
     private Sala sala;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "sessao")
-    private Collection<Mensagem> mensagemCollection;
-
+    
     public Sessao() {
     }
 
@@ -95,15 +93,7 @@ public class Sessao implements Serializable {
         this.sala = sala;
     }
 
-    @XmlTransient
-    public Collection<Mensagem> getMensagemCollection() {
-        return mensagemCollection;
-    }
-
-    public void setMensagemCollection(Collection<Mensagem> mensagemCollection) {
-        this.mensagemCollection = mensagemCollection;
-    }
-
+   
     @Override
     public int hashCode() {
         int hash = 0;

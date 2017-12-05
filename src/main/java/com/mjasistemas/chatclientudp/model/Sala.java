@@ -6,10 +6,9 @@
 package com.mjasistemas.chatclientudp.model;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -28,47 +27,29 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author marcio
  */
 @Entity
-@Table(name = "tb_sala", catalog = "chatudp", schema = "")
+@Table(name = "tb_sala")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Sala.findAll", query = "SELECT s FROM Sala s")
     , @NamedQuery(name = "Sala.findById", query = "SELECT s FROM Sala s WHERE s.id = :id")
-    , @NamedQuery(name = "Sala.findByStatus", query = "SELECT s FROM Sala s WHERE s.status = :status")
     , @NamedQuery(name = "Sala.findByCapacidade", query = "SELECT s FROM Sala s WHERE s.capacidade = :capacidade")
-    , @NamedQuery(name = "Sala.findByNome", query = "SELECT s FROM Sala s WHERE s.nome = :nome")})
+    , @NamedQuery(name = "Sala.findByNome", query = "SELECT s FROM Sala s WHERE s.nome = :nome")
+    , @NamedQuery(name = "Sala.findByStatus", query = "SELECT s FROM Sala s WHERE s.status = :status")})
 public class Sala implements Serializable {
-
-    /**
-     * @return the status
-     */
-    public StatusSalaEnum getStatus() {
-        return status;
-    }
-
-    /**
-     * @param status the status to set
-     */
-    public void setStatus(StatusSalaEnum status) {
-        this.status = status;
-    }
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(nullable = false)
     private Integer id;
-     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private StatusSalaEnum status;
     @Basic(optional = false)
-    @Column(nullable = false)
-    private Integer capacidade;
+    private int capacidade;
     @Basic(optional = false)
-    @Column(nullable = false, length = 100)
     private String nome;
+    @Enumerated(EnumType.STRING)
+    private StatusSalaEnum status;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "sala")
-    private Collection<Sessao> sessaoCollection;
+    private List<Mensagem> mensagemList;
 
     public Sala() {
     }
@@ -77,7 +58,12 @@ public class Sala implements Serializable {
         this.id = id;
     }
 
-    
+    public Sala(Integer id, int capacidade, String nome) {
+        this.id = id;
+        this.capacidade = capacidade;
+        this.nome = nome;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -86,8 +72,7 @@ public class Sala implements Serializable {
         this.id = id;
     }
 
-    
-    public Integer getCapacidade() {
+    public int getCapacidade() {
         return capacidade;
     }
 
@@ -103,13 +88,21 @@ public class Sala implements Serializable {
         this.nome = nome;
     }
 
-    @XmlTransient
-    public Collection<Sessao> getSessaoCollection() {
-        return sessaoCollection;
+    public StatusSalaEnum getStatus() {
+        return status;
     }
 
-    public void setSessaoCollection(Collection<Sessao> sessaoCollection) {
-        this.sessaoCollection = sessaoCollection;
+    public void setStatus(StatusSalaEnum status) {
+        this.status = status;
+    }
+
+    @XmlTransient
+    public List<Mensagem> getMensagemList() {
+        return mensagemList;
+    }
+
+    public void setMensagemList(List<Mensagem> mensagemList) {
+        this.mensagemList = mensagemList;
     }
 
     @Override
