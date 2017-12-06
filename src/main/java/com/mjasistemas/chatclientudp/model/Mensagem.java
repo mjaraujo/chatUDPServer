@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Mensagem.findByConteudo", query = "SELECT m FROM Mensagem m WHERE m.conteudo = :conteudo")
     , @NamedQuery(name = "Mensagem.findByDestinatario", query = "SELECT m FROM Mensagem m WHERE m.destinatario = :destinatario")
     , @NamedQuery(name = "Mensagem.findByRemetente", query = "SELECT m FROM Mensagem m WHERE m.remetente = :remetente")
+    , @NamedQuery(name = "Mensagem.findByLastTimestamp", query = "SELECT m FROM Mensagem m WHERE m.sala= :sala")// and m.timestamp > :timestamp")
     , @NamedQuery(name = "Mensagem.findByTimestamp", query = "SELECT m FROM Mensagem m WHERE m.timestamp = :timestamp")})
 public class Mensagem implements Serializable {
 
@@ -140,5 +141,5 @@ public class Mensagem implements Serializable {
     public String toString() {
         return "com.mjasistemas.chatclientudp.model.Mensagem[ id=" + id + " ]";
     }
-    
+
 }

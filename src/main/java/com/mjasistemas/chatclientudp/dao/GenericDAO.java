@@ -22,7 +22,7 @@ public class GenericDAO<T> implements iGenericDAO<T> {
     EntityManager manager = ConexaoHibernate.getInstance();
 
     private Queue<String> params;
-    private Queue<String> values;
+    private Queue<Object> values;
 
     public GenericDAO() {
         this.params =  new LinkedList();
@@ -100,7 +100,7 @@ public class GenericDAO<T> implements iGenericDAO<T> {
         return objects;
     }
     
-    public void addParams(String parametro, String valor) {
+    public void addParams(String parametro, Object valor) {
         params.add(parametro);
         values.add(valor);
     }

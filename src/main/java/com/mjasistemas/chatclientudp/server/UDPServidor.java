@@ -18,8 +18,13 @@ import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import java.net.*;
 import java.io.*;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UDPServidor implements Runnable {
 
@@ -123,17 +128,26 @@ public class UDPServidor implements Runnable {
 
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
             case 5://solicitar envio novas mensagens                
-                sala = Integer.parseInt(tmp.substring(3, 8).trim());
-                String timestamp = tmp.substring(8, 30);
+                sala = Integer.parseInt(tmp.substring(2, 7).trim());
+                String timestamp = tmp.substring(7, 29);
 
                 resposta += "050";
-                List<Mensagem> novasMensagens = new MensagemController().solicitarNovasMensagens(sala, timestamp);
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+                Date parsedDate = new Date();
+                try {
+                    parsedDate = dateFormat.parse(timestamp);
+                } catch (ParseException ex) {
+                    Logger.getLogger(UDPServidor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                List<Mensagem> novasMensagens = new MensagemController().solicitarNovasMensagens(sala, parsedDate);
                 resposta += String.format("%03d", novasMensagens.size());
                 for (Mensagem m : novasMensagens) {
-                    resposta+=String.format("%22s", m.getTimestamp());
-                    resposta+=String.format("%12s",new PessoaDao().getById(m.getRemetente()).getNickName());
-                    resposta+=String.format("%12s",new PessoaDao().getById(m.getDestinatario()).getNickName());
-                    resposta+=String.format("%200s",m.getConteudo());
+                    resposta += String.format("%22s", m.getTimestamp());
+                    resposta += String.format("%12s", new PessoaDao().getById(m.getRemetente()).getNickName());
+                    resposta += String.format("%12s", new PessoaDao().getById(m.getDestinatario()).getNickName());
+                    resposta += String.format("%200s", m.getConteudo());
                 }
 
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
