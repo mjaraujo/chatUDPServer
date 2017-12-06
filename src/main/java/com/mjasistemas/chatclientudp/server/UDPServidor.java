@@ -122,7 +122,18 @@ public class UDPServidor implements Runnable {
                 msgChat.setDestinatario(new PessoaDao().getByNickName(to).getId());
                 msgChat.setConteudo(mensagem);
                 msgChat.setSala(new SalaDao().getById(sala));
-                msgChat.setTimestamp(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+                Date dt = new Date();
+                String dataFormatada = format.format(dt.getTime()) + "." + System.currentTimeMillis() % 1000;
+                 {
+                    try {
+                        dt = format.parse(dataFormatada);
+                    } catch (ParseException ex) {
+                        Logger.getLogger(UDPServidor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                msgChat.setTimestamp(dt);
                 new MensagemDao().save(msgChat);
                 resposta += "040";
 

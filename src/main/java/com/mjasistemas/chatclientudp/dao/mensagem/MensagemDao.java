@@ -20,8 +20,8 @@ public class MensagemDao extends GenericDAO<Mensagem> {
 
     public List<Mensagem> getUltimasMensagens(Sala sala, Date timestamp) {
         addParams("sala", sala);
-       // addParams("timestamp", timestamp);
-        return newQueryNamedSingleParam("Mensagem.findByLastTimestamp");
+        addParams("timestamp", timestamp);
+        return newQueryNamedDoubleParam("Mensagem.findByLastTimestamp");
     }
 
 }
