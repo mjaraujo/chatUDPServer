@@ -26,7 +26,7 @@ public class PessoaDao extends GenericDAO<Pessoa> {
     }
 
     public List<Pessoa> getLogadosSala(int sala){
-        this.addParams("sala",String.valueOf(sala));
-        return this.newQueryBuilder(Pessoa.class);
+        this.addParams("sala",sala);
+        return this.newQueryNamedSingleParam("Pessoa.findBySala");
     }
 }

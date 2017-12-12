@@ -7,11 +7,14 @@ package com.mjasistemas.chatclientudp.dao;
 
 import java.util.AbstractQueue;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -25,12 +28,10 @@ public class GenericDAO<T> implements iGenericDAO<T> {
     private Queue<Object> values;
 
     public GenericDAO() {
-        this.params =  new LinkedList();
+        this.params = new LinkedList();
         this.values = new LinkedList();
     }
 
-    
-    
     public void commit() {
         manager.getTransaction().commit();
     }
@@ -52,10 +53,15 @@ public class GenericDAO<T> implements iGenericDAO<T> {
     }
 
     public T listOne(String pkName, String pkValue, Class clazz) {
-        String jpql = " SELECT t FROM " + clazz.getTypeName() + " t where t." + pkName + " = " + pkValue;
-        Query query = manager.createQuery(jpql);
-        Object obj = query.getSingleResult();
-        return (T) obj;
+        try {
+            String jpql = " SELECT t FROM " + clazz.getTypeName() + " t where t." + pkName + " = " + pkValue;
+            Query query = manager.createQuery(jpql);
+            Object obj = query.getSingleResult();
+            return (T) obj;
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
     @Override
@@ -99,29 +105,39 @@ public class GenericDAO<T> implements iGenericDAO<T> {
         List<T> objects = query.getResultList();
         return objects;
     }
-    
+
     public void addParams(String parametro, Object valor) {
         params.add(parametro);
         values.add(valor);
     }
-    
+
     public List newQueryNamedSingleParam(String namedQuery) {
-        
-        List<T> objects= manager.createNamedQuery(namedQuery)
+
+        List<T> objects = manager.createNamedQuery(namedQuery)
                 .setParameter(params.poll(), values.poll())
                 .getResultList();
-        
+
         return objects;
     }
-    
+
     public List newQueryNamedDoubleParam(String namedQuery) {
-        
-        List<T> objects= manager.createNamedQuery(namedQuery)
+
+        List<T> objects = manager.createNamedQuery(namedQuery)
                 .setParameter(params.poll(), values.poll())
                 .setParameter(params.poll(), values.poll())
                 .getResultList();
-        
+
         return objects;
     }
-    
+
+    public List newQueryNamedDoubleParamTimestamp(String namedQuery, Date data) {
+
+        List<T> objects = manager.createNamedQuery(namedQuery)
+                .setParameter(params.poll(), values.poll())
+                .setParameter(params.poll(), data, TemporalType.TIMESTAMP)
+                .getResultList();
+
+        return objects;
+    }
+
 }

@@ -5,7 +5,6 @@
  */
 package com.mjasistemas.chatclientudp.view;
 
-import com.mjasistemas.chatclientudp.comunicacao.Configuracoes;
 import com.mjasistemas.chatclientudp.model.pessoa.Pessoa;
 import com.mjasistemas.chatclientudp.model.pessoa.TipoPessoaEnum;
 import com.mysql.jdbc.log.Log;
@@ -24,8 +23,6 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
         this.pessoa = pessoa;
         initComponents();
         habilitarOpcoes();
-        Configuracoes.setPorta(9876);
-        Configuracoes.setIP("127.0.0.1");
     }
 
     /**
@@ -149,10 +146,6 @@ public class JanelaPrincipalForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void mnuSalasAbertasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuSalasAbertasActionPerformed
-        // TODO add your handling code here:
-        SalasAbertasForm salasAbertasForm = new SalasAbertasForm(pessoa);
-        this.desktopPane.add(salasAbertasForm);
-        salasAbertasForm.setVisible(true);
         
     }//GEN-LAST:event_mnuSalasAbertasActionPerformed
 

@@ -1,6 +1,5 @@
 package com.mjasistemas.chatclientudp;
 
-import com.mjasistemas.chatclientudp.comunicacao.UDPCliente;
 import com.mjasistemas.chatclientudp.server.UDPServidor;
 import com.mjasistemas.chatclientudp.view.LoginForm;
 

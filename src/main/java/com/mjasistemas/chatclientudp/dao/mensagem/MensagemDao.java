@@ -9,6 +9,7 @@ import com.mjasistemas.chatclientudp.dao.GenericDAO;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
 import com.mjasistemas.chatclientudp.model.Mensagem;
 import com.mjasistemas.chatclientudp.model.Sala;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class MensagemDao extends GenericDAO<Mensagem> {
 
-    public List<Mensagem> getUltimasMensagens(Sala sala, Date timestamp) {
+    public List<Mensagem> getUltimasMensagens(Sala sala, Timestamp timestamp) {
         addParams("sala", sala);
         addParams("timestamp", timestamp);
         return newQueryNamedDoubleParam("Mensagem.findByLastTimestamp");

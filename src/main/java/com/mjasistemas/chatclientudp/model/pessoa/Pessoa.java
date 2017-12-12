@@ -6,6 +6,8 @@
 package com.mjasistemas.chatclientudp.model.pessoa;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.persistence.AttributeOverride;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -26,6 +28,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -43,23 +47,10 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Pessoa.findAll", query = "SELECT p FROM Pessoa p")
     , @NamedQuery(name = "Pessoa.findById", query = "SELECT p FROM Pessoa p WHERE p.id = :id")
     , @NamedQuery(name = "Pessoa.findByNome", query = "SELECT p FROM Pessoa p WHERE p.nome = :nome")
+    , @NamedQuery(name = "Pessoa.findBySala", query = "SELECT p FROM Pessoa p WHERE p.sala = :sala")
     , @NamedQuery(name = "Pessoa.findByNickName", query = "SELECT p FROM Pessoa p WHERE p.nickName = :nickName")
     , @NamedQuery(name = "Pessoa.findBySenha", query = "SELECT p FROM Pessoa p WHERE p.senha = :senha")})
 public abstract class Pessoa implements Serializable {
-
-    /**
-     * @return the sala
-     */
-    public Integer getSala() {
-        return sala;
-    }
-
-    /**
-     * @param sala the sala to set
-     */
-    public void setSala(Integer sala) {
-        this.sala = sala;
-    }
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -81,6 +72,8 @@ public abstract class Pessoa implements Serializable {
     private Integer sala;
     @Transient
     private TipoPessoaEnum tipo;
+    @Transient
+    private Date lastAlive;
 
     public Pessoa() {
     }
@@ -158,6 +151,36 @@ public abstract class Pessoa implements Serializable {
      */
     public TipoPessoaEnum getTipo() {
         return tipo;
+    }
+
+    /**
+     * @return the alive
+     */
+    public Date getAlive() {
+        return lastAlive;
+    }
+
+    /**
+     * @param alive the alive to set
+     */
+    public void setAlive(Timestamp alive) {
+        this.lastAlive = alive;
+    }
+
+  
+
+    /**
+     * @return the sala
+     */
+    public Integer getSala() {
+        return sala;
+    }
+
+    /**
+     * @param sala the sala to set
+     */
+    public void setSala(Integer sala) {
+        this.sala = sala;
     }
 
     /**

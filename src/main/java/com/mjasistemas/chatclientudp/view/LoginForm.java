@@ -58,6 +58,11 @@ public class LoginForm extends javax.swing.JFrame {
         jLabel2.setText("Senha");
 
         btnCancelar.setText("CANCELAR");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         btnEntrar.setBackground(new java.awt.Color(255, 255, 255));
         btnEntrar.setText("ENTRAR");
@@ -145,6 +150,11 @@ public class LoginForm extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_btnEntrarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @return the pessoa

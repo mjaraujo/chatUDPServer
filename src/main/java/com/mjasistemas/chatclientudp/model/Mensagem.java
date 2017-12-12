@@ -6,8 +6,10 @@
 package com.mjasistemas.chatclientudp.model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Mensagem.findByConteudo", query = "SELECT m FROM Mensagem m WHERE m.conteudo = :conteudo")
     , @NamedQuery(name = "Mensagem.findByDestinatario", query = "SELECT m FROM Mensagem m WHERE m.destinatario = :destinatario")
     , @NamedQuery(name = "Mensagem.findByRemetente", query = "SELECT m FROM Mensagem m WHERE m.remetente = :remetente")
-    , @NamedQuery(name = "Mensagem.findByLastTimestamp", query = "SELECT m FROM Mensagem m WHERE m.sala = :sala and m.timestamp > :timestamp")
+    , @NamedQuery(name = "Mensagem.findByLastTimestamp", query = "SELECT m FROM Mensagem m WHERE m.sala = :sala and m.timestamp >  :timestamp order by m.timestamp desc")
     , @NamedQuery(name = "Mensagem.findByTimestamp", query = "SELECT m FROM Mensagem m WHERE m.timestamp = :timestamp")})
 public class Mensagem implements Serializable {
 
@@ -105,7 +107,7 @@ public class Mensagem implements Serializable {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 

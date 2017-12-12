@@ -5,9 +5,11 @@
  */
 package com.mjasistemas.chatclientudp.controller;
 
+import com.mjasistemas.chatclientudp.FormatFacade;
 import com.mjasistemas.chatclientudp.dao.Pessoa.SalaDao;
 import com.mjasistemas.chatclientudp.dao.mensagem.MensagemDao;
 import com.mjasistemas.chatclientudp.model.Mensagem;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.List;
  */
 public class MensagemController {
 
-    public List<Mensagem> solicitarNovasMensagens(int idSala, Date timestamp) {
+    public List<Mensagem> solicitarNovasMensagens(int idSala, Timestamp timestamp) {
         return new MensagemDao().getUltimasMensagens(new SalaDao().getById(idSala), timestamp);
     }
 }

@@ -20,6 +20,7 @@ import java.io.*;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,11 +29,13 @@ import java.util.logging.Logger;
 
 public class UDPServidor implements Runnable {
 
+    private List<Pessoa> comunicantes;
     private String resposta;
     private DatagramSocket aSoquete = null;
 
     private RetornoEnum tratarRequisicao(DatagramPacket requisicao) {
         int sala = 0;
+        Timestamp timestamp;
         resposta = "";
         int tamResp = requisicao.getLength();
         String tmp = new String(requisicao.getData(), 0, tamResp);
@@ -46,8 +49,11 @@ public class UDPServidor implements Runnable {
                 String senha = tmp.substring(14, 34).trim(); //senha
                 Pessoa pessoaLogada = new UsuarioController().permitirLogin(apelido, senha);
                 StatusLoginPessoaEnum retornoLogin = StatusLoginPessoaEnum.OK;
-                retornoLogin = pessoaLogada == null ? StatusLoginPessoaEnum.NAO_EXISTE : StatusLoginPessoaEnum.OK;
-                retornoLogin = pessoaLogada.getId() < 0 ? StatusLoginPessoaEnum.SENHA_INVALIDA : StatusLoginPessoaEnum.OK;
+                if (pessoaLogada == null) {
+                    retornoLogin = StatusLoginPessoaEnum.NAO_EXISTE;
+                } else if (pessoaLogada.getId() < 0) {
+                    retornoLogin = StatusLoginPessoaEnum.SENHA_INVALIDA;
+                }
                 //pareiiiiii
                 resposta = "00";
                 switch (retornoLogin) {
@@ -98,6 +104,9 @@ public class UDPServidor implements Runnable {
                 resposta += "020";
                 resposta += String.format("%12s", apelido);
                 Pessoa pessoaEntrada = new UsuarioController().acessarSala(apelido, sala);
+                timestamp = new Timestamp(System.currentTimeMillis());
+                pessoaEntrada.setAlive(timestamp);
+                comunicantes.add(pessoaEntrada);
                 new PessoaDao().update(pessoaEntrada);
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
             case 3://solicitar logados na sala
@@ -111,6 +120,7 @@ public class UDPServidor implements Runnable {
                     resposta += String.format("%05d", p.getId());
                     resposta += String.format("%12s", p.getNickName());
                 }
+
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
             case 4://solicitar envio de mensagem
                 sala = Integer.parseInt(tmp.substring(3, 8).trim()); //apelido
@@ -123,51 +133,42 @@ public class UDPServidor implements Runnable {
                 msgChat.setConteudo(mensagem);
                 msgChat.setSala(new SalaDao().getById(sala));
 
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-                Date dt = new Date();
-                String dataFormatada = format.format(dt.getTime()) + "." + System.currentTimeMillis() % 1000;
-                 {
-                    try {
-                        dt = format.parse(dataFormatada);
-                    } catch (ParseException ex) {
-                        Logger.getLogger(UDPServidor.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                msgChat.setTimestamp(dt);
+                timestamp = new Timestamp(System.currentTimeMillis());
+                msgChat.setTimestamp(timestamp);
                 new MensagemDao().save(msgChat);
                 resposta += "040";
 
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
             case 5://solicitar envio novas mensagens                
                 sala = Integer.parseInt(tmp.substring(2, 7).trim());
-                String timestamp = tmp.substring(7, 29);
-
+                System.out.println(tmp);
+                System.out.println(tmp.substring(7, 29));
+                timestamp = Timestamp.valueOf(tmp.substring(7, 29));
+                System.out.println("hhhhhhhh:" + timestamp.toString());
                 resposta += "050";
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-                Date parsedDate = new Date();
-                try {
-                    parsedDate = dateFormat.parse(timestamp);
-                } catch (ParseException ex) {
-                    Logger.getLogger(UDPServidor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                List<Mensagem> novasMensagens = new MensagemController().solicitarNovasMensagens(sala, parsedDate);
+                List<Mensagem> novasMensagens = new MensagemController().solicitarNovasMensagens(sala, timestamp);
                 resposta += String.format("%03d", novasMensagens.size());
                 for (Mensagem m : novasMensagens) {
-                    resposta += String.format("%22s", m.getTimestamp());
+                    String S = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(m.getTimestamp());
+                    resposta += String.format("%23s", S);
                     resposta += String.format("%12s", new PessoaDao().getById(m.getRemetente()).getNickName());
                     resposta += String.format("%12s", new PessoaDao().getById(m.getDestinatario()).getNickName());
                     resposta += String.format("%200s", m.getConteudo());
                 }
 
                 return RetornoEnum.SOLICITACAO_PROCESSADA;
-
+            case 88:
+                String usuario = tmp.substring(3, 14).trim();
+                timestamp = new Timestamp(System.currentTimeMillis());
+                new PessoaDao().getByNickName(usuario).setAlive(timestamp);
+                return RetornoEnum.SOLICITACAO_PROCESSADA;
         }
         return RetornoEnum.ENTRADA_NAO_CADASTRADO;
     }
 
     public UDPServidor() {
+        this.comunicantes = new ArrayList<>();
     }
 
     private void iniciar() {
@@ -182,6 +183,9 @@ public class UDPServidor implements Runnable {
                 RetornoEnum respostaRequisicao = tratarRequisicao(requisicao);
 
                 if (respostaRequisicao == RetornoEnum.SOLICITACAO_PROCESSADA) {
+                    if (resposta.length() == 0) {
+                        continue;
+                    }
                     buffer = resposta.getBytes();
                     DatagramPacket msgResposta = new DatagramPacket(buffer, resposta.length(), requisicao.getAddress(), requisicao.getPort());
                     aSoquete.send(msgResposta);
@@ -207,8 +211,32 @@ public class UDPServidor implements Runnable {
         }
     }
 
+    private void monitoraAlives() {
+        do {
+            for (Pessoa p : comunicantes) {
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                long diff = (timestamp.getTime() - p.getAlive().getTime()) / 1000;
+                System.out.println("DIFERENÇA:" + diff);
+                if (diff > 5) {
+                    p.setSala(0);
+                    new PessoaDao().update(p);
+                }
+            }
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(UDPServidor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } while (true);
+    }
+
     @Override
     public void run() {
+        new Thread(new Runnable() {
+            public void run() {
+                monitoraAlives();
+            }
+        }).start();
         iniciar();
     }
 
